@@ -1,0 +1,49 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && 
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' || 
+         request.auth.token.email == "kuro.neko0700@gmail.com");
+    }
+
+    function isValidServiceRequest(data) {
+      return data.requesterName is string && data.requesterName.size() > 0 && data.requesterName.size() < 100 &&
+             data.description is string && data.description.size() > 0 && data.description.size() < 2000 &&
+             data.status in ['pending', 'in_progress', 'completed'];
+    }
+
+    function isValidMaintenanceOrder(data) {
+      return data.osNumber is string && data.osNumber.size() > 0 &&
+             data.equipment is string && data.equipment.size() > 0;
+    }
+
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner(userId) || isAdmin();
+    }
+
+    match /serviceRequests/{requestId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isValidServiceRequest(request.resource.data);
+      allow update: if isAuthenticated() && isValidServiceRequest(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    match /maintenanceOrders/{orderId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isValidMaintenanceOrder(request.resource.data);
+      allow update: if isAuthenticated() && isValidMaintenanceOrder(request.resource.data);
+      allow delete: if isAdmin();
+    }
+  }
+}

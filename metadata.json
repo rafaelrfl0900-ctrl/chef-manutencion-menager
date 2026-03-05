@@ -1,0 +1,5 @@
+{
+  "name": "Chef Maintenance Manager",
+  "description": "Sistema de gestão de manutenção industrial para registro de solicitações de serviço, ordens de serviço e controle de prioridades.",
+  "requestFramePermissions": []
+}

@@ -1,0 +1,95 @@
+{
+  "entities": {
+    "ServiceRequest": {
+      "title": "Service Request",
+      "description": "A request for maintenance service initiated by a department.",
+      "type": "object",
+      "properties": {
+        "date": { "type": "string", "format": "date" },
+        "time": { "type": "string" },
+        "requesterName": { "type": "string" },
+        "requesterDepartment": { "type": "string", "enum": ["Produção", "Qualidade", "Administrativo", "Outros"] },
+        "area": { "type": "string" },
+        "description": { "type": "string" },
+        "equipment": { "type": "string" },
+        "affectsSafety": { "type": "boolean" },
+        "affectsProduction": { "type": "boolean" },
+        "status": { "type": "string", "enum": ["pending", "in_progress", "completed"] },
+        "osNumber": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "createdBy": { "type": "string" }
+      },
+      "required": ["date", "requesterName", "requesterDepartment", "description", "status"]
+    },
+    "MaintenanceOrder": {
+      "title": "Maintenance Order",
+      "description": "A detailed record of a corrective maintenance operation.",
+      "type": "object",
+      "properties": {
+        "requestId": { "type": "string" },
+        "osNumber": { "type": "string" },
+        "date": { "type": "string", "format": "date" },
+        "requester": { "type": "string" },
+        "equipment": { "type": "string" },
+        "department": { "type": "string" },
+        "urgency": { "type": "string" },
+        "defectDescription": { "type": "string" },
+        "services": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "date": { "type": "string" },
+              "startTime": { "type": "string" },
+              "endTime": { "type": "string" },
+              "activity": { "type": "string" },
+              "responsible": { "type": "string" }
+            }
+          }
+        },
+        "partsUsed": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "initialQty": { "type": "number" },
+              "usedQty": { "type": "number" },
+              "finalQty": { "type": "number" },
+              "description": { "type": "string" }
+            }
+          }
+        },
+        "closure": {
+          "type": "object",
+          "properties": {
+            "date": { "type": "string" },
+            "requesterSignature": { "type": "string" },
+            "observations": { "type": "string" }
+          }
+        },
+        "hygiene": {
+          "type": "object",
+          "properties": {
+            "date": { "type": "string" },
+            "department": { "type": "string" },
+            "equipment": { "type": "string" },
+            "qualityRelease": { "type": "string" }
+          }
+        },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "createdBy": { "type": "string" }
+      },
+      "required": ["osNumber", "date", "equipment", "department"]
+    }
+  },
+  "firestore": {
+    "/serviceRequests": {
+      "schema": "ServiceRequest",
+      "description": "Collection of maintenance service requests."
+    },
+    "/maintenanceOrders": {
+      "schema": "MaintenanceOrder",
+      "description": "Collection of detailed maintenance orders."
+    }
+  }
+}
